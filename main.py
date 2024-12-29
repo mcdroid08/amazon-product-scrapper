@@ -7,6 +7,10 @@ from selenium.webdriver.edge.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.webdriver import WebDriver
 import pandas as pd
+import tkinter as tk
+
+root = tk.Tk()
+driver: WebDriver | None = None
 
 # variables
 # ==============
@@ -15,18 +19,15 @@ driver_path = "D:\\projects\\lib\\edgedriver_win64\\msedgedriver.exe"
 # browser - edge, chrome, firefox - make sure to get the driver for corresponding browser
 browser_type = "edge"
 # first page link
-page_link = "https://www.amazon.in/Toys-Games-Skillmatics/s?rh=n%3A1350380031%2Cp_89%3ASkillmatics"
+page_link = tk.StringVar(value="https://www.amazon.in/Toys-Games-Skillmatics/s?rh=n%3A1350380031%2Cp_89%3ASkillmatics")
 # total number of pages to fetch the data from
-max_pages_to_check = 1
+max_pages_to_check = tk.IntVar(value=1)
 # ==============
-
-
-driver: WebDriver | None = None
 
 
 def open_page():
     global driver
-    driver.get(page_link)
+    driver.get(page_link.get())
 
 def get_product_title(ele):
     try:
@@ -163,16 +164,38 @@ def load_webdriver():
     else:
         throw_error("Invalid browser type")
 
+def submit_ui_inputs():
+    global root
+    root.destroy()
+    pass
+
+def get_inputs():
+    global page_link, max_pages_to_check
+
+    root.title("Amazon Product Search")
+    root.geometry("750x150")
+
+    tk.Label(root, text="Link:").grid(row=0, column=0)
+    tk.Entry(root, textvariable=page_link, width=100).grid(row=0, column=1, padx=10, pady=10)
+
+    tk.Label(root, text="Number of pages:").grid(row=1, column=0, padx=10, pady=10)
+    tk.Entry(root, textvariable=max_pages_to_check, width=100).grid(row=1, column=1, padx=10, pady=10)
+
+    tk.Button(root, text="Submit", command=submit_ui_inputs).grid(row=2, padx=10, pady=10)
+
+    root.mainloop()
+
 def main():
     global driver
 
     final_products = []
     page_count = 0
+    get_inputs()
 
     load_webdriver()
     open_page()
 
-    while page_count < max_pages_to_check:
+    while page_count < max_pages_to_check.get():
         print("Loading page number: " + str(page_count + 1))
         while driver.execute_script("return document.readyState") != "complete":
             print("waiting for page to load...")
